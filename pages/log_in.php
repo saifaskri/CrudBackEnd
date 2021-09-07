@@ -267,7 +267,7 @@ echo ' <div class="container">
                                  //set random string in db
                                  $mycrud->modify_column_in_db($conn,"user","email_code",$random,"email",$email);
                                  $body="Your Access Code is : <b>".$random."</b>";
-                                 echo $function->show_alert_div("alert-success mt-5",mailing([$email,"saifxt0000@gmail.com"],$body));
+                                 echo $function->show_alert_div("alert-success mt-5",mailing([$email],$body));
                                  $_SESSION["change_email"]=$email;
                                  header( "refresh:2 ;url=?was=verify_code" );
                                     

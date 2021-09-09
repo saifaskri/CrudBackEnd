@@ -2,7 +2,11 @@
     list-style: none;
 
 } 
-
+.submit-btnn{
+    max-width: 130px;
+    padding: 10px;
+    font-size: 25px;
+}
 .navbar .nav-item :first-child {
  font-size: 25px;
  font-weight: bold;
@@ -15,7 +19,9 @@
 .white-color{
     color: white !important;
 }
-
+.width-100{
+    max-width: 100%;
+}
 .navbar .active{
     color: red !important;
 }
@@ -106,8 +112,11 @@ margin-right: 30px;
 
 .btn_behalter{
     display: flex;
+    justify-content: center;
 }
-
+.approve_tr_color{
+background-color: red;
+}
 .fix-a-btn a{
     text-decoration: none;
     color: white;
@@ -202,7 +211,22 @@ margin-right: 30px;
 .myimg{
     min-height: 70%;
 }
+.view{
+display: flex;
+letter-spacing: 1,4;
+font-family: cursive;
+font-weight: bold;
+color: black;
+}
+.view  .active{
+    color: red !important;
+}
 
+.view a{
+text-decoration: none;
+color: black;
+margin: 0 7px;
+}
 .card-body .mydesc{
     overflow: hidden;
     max-height: 70px;
@@ -412,6 +436,10 @@ font-size: 15px;
     font-family: cursive;
     font-size: 16px;
     background-color: #eeee;
+}
+.btn_behalter a{
+color: white;
+text-decoration: none;
 }
 
 /* end table show user */

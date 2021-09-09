@@ -3,8 +3,8 @@
 ob_start(); 
 session_start();
 session_regenerate_id();
+if(isset($_SESSION["showcolor"])){$_SESSION["showcolor"]="NO";}
 if (isset($_SESSION["username"])&& isset($_SESSION["userid"])){
-
 $set_navbar="";
 $language_is="";
 $page_titel="Admin Page";
@@ -21,22 +21,23 @@ if (USER_INFO[0]["groupID"]=='1'){
 include $tmplate_path."header.php";
 if(isset($set_navbar)){include $tmplate_path."navbar.php";}
 
-    if ($was=="default"){
-    echo "welcome in main page";
-    }
+if ($was=="default"){
+$function->show_alert_div("alert alert-info mt-5","Sorry Admin We Will Edit this Page Later".$_SESSION["showcolor"]);
+
+}
     
+//edit this Later
+else if ($was == "modify_account"){
+    $function->show_alert_div("alert alert-info mt-5","Sorry Admin We Will Edit Modify Account Later Kein Lust Drauf");
+}
+
+
+
+
     
     else if($was=="add"){
     ?>
     <div class="myaddbody">
-        <!-- starting choosing currency-->  
-        <!-- <ul class="wahrung">
-            <div class="wharung-li">choose your currency</div>
-            <li data-wahrnug="TND" class="wharung-li <?php if (isset($_COOKIE["currency"])&&($_COOKIE["currency"]=="TND")){echo " active";}?>"><a href="index.php?was=add&currency=TND">Tunisian currency<span>tnd</span></a></li>
-            <li data-wahrnug="EURO" class="wharung-li<?php if (isset($_COOKIE["currency"])&&($_COOKIE["currency"]=="EURO")){echo " active";}?> "><a href="index.php?was=add&currency=EURO">European currency<span>euro</span></a></li>
-            <li data-wahrnug="usa" class="wharung-li<?php if (isset($_COOKIE["currency"])&&($_COOKIE["currency"]=="USA")){echo " active";}?>  "><a href="index.php?was=add&currency=USA">american currency<span>usa</span></a></li>
-        </ul> -->
-        <!-- end choosing currency     -->
         <div class="add-item-page">
             <div class="container">
                 <h1 class="text-center page-titel ">Welcome <b><?= $_SESSION['username']?></b> To Add New Item Page Your Are <?=(USER_INFO[0]["groupID"] == '1') ? "Admin" : "User" ?></h1>
@@ -199,6 +200,9 @@ foreach( $items as $index=>$item){
         <div class="show-money"><?=$item["item_price"]." ".$item["item_currency"] ?> </div>
     </div> 
 </div>
+<!-- Start My Slider -->
+
+<!-- end My Slider -->
 <?php  
 //end foreach    
 }
@@ -306,7 +310,7 @@ $get_id= $function->get_id_colmn($_GET['id']);
 if($get_id!=-103){
     $id_exist=$mycrud->check_if_in_db_admin($conn,"items","item_id",$get_id,$_SESSION['userid']);
     if ($id_exist){
-        $function->show_alert_div(" alert-succes mt-5 alert-font-size",$mycrud->change_value_of_column($conn,"items","item_status",1,"item_id",$get_id)); 
+        $function->show_alert_div("  alert-success  mt-5 alert-font-size",$mycrud->change_value_of_column($conn,"items","item_status",1,"item_id",$get_id)); 
         header( "refresh:1;url=?was=show");
     }else{$function->show_alert_div(" alert-warning mt-5 alert-font-size","There is No Such Item");}
 }else{$function->show_alert_div(" alert-warning mt-5 alert-font-size","There is No Such Item");}
@@ -320,7 +324,7 @@ $get_id= $function->get_id_colmn($_GET['id']);
 if($get_id!=-103){
     $id_exist=$mycrud->check_if_in_db_admin($conn,"items","item_id",$get_id,$_SESSION['userid']);
     if ($id_exist){
-        $function->show_alert_div(" alert-succes mt-5 alert-font-size",$mycrud->change_value_of_column($conn,"items","item_status",0,"item_id",$get_id)); 
+        $function->show_alert_div(" alert-success mt-5 alert-font-size",$mycrud->change_value_of_column($conn,"items","item_status",0,"item_id",$get_id)); 
         header( "refresh:1;url=?was=show");
     }else{$function->show_alert_div(" alert-warning mt-5 alert-font-size","There is No Such Item");}
 }else {$function->show_alert_div(" alert-warning mt-5 alert-font-size","There is No Such Item");}
@@ -419,11 +423,13 @@ if(USER_INFO[0]['zugangberichtigung']=='1'){
 include $tmplate_path."header.php";
 if(isset($set_navbar)){include $tmplate_path."navbar.php";} 
 
-echo "You are normale User ";
-
-
 if ($was=="default"){
-echo "welcom in main User page";
+$function->show_alert_div("alert alert-info mt-5","Sorry We Will Edit this Page Later");
+}
+
+//edit this Later
+else if ($was == "modify_account"){
+    $function->show_alert_div("alert alert-info mt-5","Sorry We Will Edit Modify Account Later Kein Lust Drauf");
 }
 
 

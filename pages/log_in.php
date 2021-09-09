@@ -6,7 +6,7 @@ $setheader="";
 $set_navbar_no="";
 $language_is="";
 $was = (isset($_GET["was"])) ? $_GET["was"]  : $was="default" ;
-
+$_SESSION["showcolor"]="Yes";
 //if Default is already set need no condition 
 
 
@@ -158,74 +158,121 @@ if ($was=="Adduser"){
 
 
 else if ($was=="default" || $was=="check_log_in")  {
-                  // main log_in page                
-                  define("MAX_TRYES",3);///////////////////////////////set the Trys issue  which user can do 
-                  if (!isset($_SESSION['no_log_in_more'])){$_SESSION['no_log_in_more']=false;}
-                  if (!isset($_SESSION['wrong_trys'])){$_SESSION['wrong_trys']=0;}
-                  $page_titel="Log In";
-                  include "init.php"; 
+   // main log_in page                
+   define("MAX_TRYES",3);///////////////////////////////set the Trys issue  which user can do 
+   if (!isset($_SESSION['no_log_in_more'])){$_SESSION['no_log_in_more']=false;}
+   if (!isset($_SESSION['wrong_trys'])){$_SESSION['wrong_trys']=0;}
+   $page_titel="Log In";
+   include "init.php"; 
+   if(isset($_COOKIE["free_to_go"])) {
+   $_SESSION['no_log_in_more']=true;
+   }else{$_SESSION['no_log_in_more']=false;}
 
-                  if(isset($_COOKIE["free_to_go"])) {
-                  $_SESSION['no_log_in_more']=true;
-                  }else{$_SESSION['no_log_in_more']=false;}
+if(!isset($_SESSION['username'])){
 
-            if(!isset($_SESSION['username'])){
+               if(!$_SESSION['no_log_in_more']){
+                  
+                  ?>
+           
+<div class="log-in-body container  center-Y  ">
+<div class="row">
+   <div class="col-lg-3 col-md-2"></div>
+   <div class="col-lg-6 col-md-8 login-box">
+         <div class="col-lg-12 login-key">
+            <i class="fa fa-key" aria-hidden="true"></i>
+         </div>
+         <div class="col-lg-12 login-title">
+            ADMIN PANEL
+         </div>
+         <div class="col-lg-12 login-form">
+            <div class="col-lg-12 login-form">
+               <form method="post"  class="" action="?was=check_log_in">    
+                     <div class="form-group">
+                        <label   class="form-control-label">USERNAME</label>
+                        <input name="username" type="text" class="form-control" required autocomplete="off">
+                     </div>
+                     <div class="form-group">
+                        <label class="form-control-label">PASSWORD</label>
+                        <input type="password" required autocomplete="new-password" name="password" class="form-control" i>
+                     </div>
 
-                                                            if(!$_SESSION['no_log_in_more']){
-                                                               ?>
-                                                               <form method="post"  class="form-login center-Y" action="?was=check_log_in">
-                                                                  <input type="text" name="username" id="" placeholder="<?php echo lang("username_placeholder");?>" required autocomplete="off">  
-                                                                  <input type="password" name="password" id="" placeholder="<?php echo lang("password_placeholder");?>" required autocomplete="new-password">  
-                                                                  <div class="all_btn">
-                                                                     <button type="submit" class="color_white"><?php echo lang("sign in");?></button>
-                                                                     <button type="submit" class="mx-3"><a href="?was=Adduser">Sign Up</a></button>
-                                                                  </div>
-                                                                  <a href="?was=forget_password">Forget Password</a>
-                                                               </form>   
-                                                               <?php
-                                                               }else{$function->show_alert_div("alert-danger mt-5","You Can't Log In Normaly But Only After ".($deny_log_in_time/3600)." H But Try With Forget Password Or Make New Account ");}
-                     
-                     if($was=="check_log_in"){
-                              if($_SERVER['REQUEST_METHOD']=="POST" && isset($_POST["username"]) && isset($_POST["password"])){
-                                    //filtration of the inputs field + hashing password  
-                                    $username =filter_var($_POST["username"],FILTER_SANITIZE_STRING);
-                                    $password= sha1(htmlspecialchars($_POST["password"]));
-                                    // fetch spezifische Spalten
-                                    define('USER_ROW',$mycrud->log_in_check($conn,"id,username,working_under","user","username","password",$username,$password));
-                                    var_dump(USER_ROW);
+                     <div class="col-lg-12 loginbttm">
+                        <div class="col-lg-6 login-btm login-text">
+                           <!-- Error Message -->
+                        </div>
+                        <div class="col-lg-6 login-btm login-button">
+                           <button class="btn btn-outline-primary"><a href="?was=Adduser">Sign Up</a></button>
+                           <button type="submit" class="btn btn-outline-primary">LOGIN</button>
+                        </div>
+                        <a  class="mya" href="?was=forget_password">Forget Password ?</a>
+                     </div>
+               </form>
+            </div>
+         </div>
+         <div class="col-lg-3 col-md-2"></div>
+   </div>
+</div>
+</form>
+<?php
+}else{$function->show_alert_div("alert-danger mt-5","You Can't Log In Normaly But Only After ".($deny_log_in_time/3600)." H But Try With Forget Password Or Make New Account ");}
+?>
 
-                                    if( count(USER_ROW)>0){
-                                             $_SESSION["username"]=USER_ROW[0]["username"];
-                                             $_SESSION["userid"]=USER_ROW[0]["id"];
-                                             // $_SESSION["approved"]=USER_ROW[0]["approved"];
-                                             // $_SESSION["user_group_id"]=USER_ROW[0]["groupID"];
-                                             if(USER_ROW[0]["working_under"]!='0'){$_SESSION["derman"]=USER_ROW[0]["working_under"];}
-                                             $_SESSION['wrong_trys']=0;
-                                             header("Location:log_in.php");
-                                             exit;
-                                          }else{
-                                             //wrong pass or username
-                                             $_SESSION['wrong_trys']++;
-                                             if(MAX_TRYES - $_SESSION['wrong_trys']<0){
-                                                $function->show_alert_div("alert-danger","you probably forgot your account");
-                                                setcookie("free_to_go","no", time() + ($deny_log_in_time), "/");
-                                                $_SESSION['wrong_trys']=0;
-                                                header("Refresh:2");
-                                             }else{
-                                                $function->show_alert_div("alert-danger","Wrong Username or Password Left Tryes is ".MAX_TRYES-$_SESSION['wrong_trys']);}
-                                             
-                                             }
-                                             
+<!-- // my work -->
+<!-- 
+<form method="post"  class="form-login center-Y" action="?was=check_log_in">
+   <input type="text" name="username" id="" placeholder="" required autocomplete="off">  
+   <input type="password" name="password" id="" placeholder=" required autocomplete="new-password">  
+   <div class="all_btn">
+      <button type="submit" class="color_white">></button>
+      <button type="submit" class="mx-3"><a href="?was=Adduser">Sign Up</a></button>
+   </div>
+   <a href="?was=forget_password">Forget Password</a>
+</form>    -->
 
-                                 
-                              }else {header("Location:log_in.php");}
+<?php
+      
+      if($was=="check_log_in"){
+               if($_SERVER['REQUEST_METHOD']=="POST" && isset($_POST["username"]) && isset($_POST["password"])){
+                     //filtration of the inputs field + hashing password  
+                     $username =filter_var($_POST["username"],FILTER_SANITIZE_STRING);
+                     $password= sha1(htmlspecialchars($_POST["password"]));
+                     // fetch spezifische Spalten
+                     define('USER_ROW',$mycrud->log_in_check($conn,"id,username,working_under","user","username","password",$username,$password));
+                     var_dump(USER_ROW);
+
+                     if( count(USER_ROW)>0){
+                              $_SESSION["username"]=USER_ROW[0]["username"];
+                              $_SESSION["userid"]=USER_ROW[0]["id"];
+                              $_SESSION["showcolor"]="No";
+                              // $_SESSION["approved"]=USER_ROW[0]["approved"];
+                              // $_SESSION["user_group_id"]=USER_ROW[0]["groupID"];
+                              if(USER_ROW[0]["working_under"]!='0'){$_SESSION["derman"]=USER_ROW[0]["working_under"];}
+                              $_SESSION['wrong_trys']=0;
+                              header("Location:log_in.php");
+                              exit;
+                           }else{
+                              //wrong pass or username
+                              $_SESSION['wrong_trys']++;
+                              if(MAX_TRYES - $_SESSION['wrong_trys']<0){
+                                 $function->show_alert_div("alert-danger","you probably forgot your account");
+                                 setcookie("free_to_go","no", time() + ($deny_log_in_time), "/");
+                                 $_SESSION['wrong_trys']=0;
+                                 header("Refresh:2");
+                              }else{
+                                 $function->show_alert_div("alert-danger","Wrong Username or Password Left Tryes is ".MAX_TRYES-$_SESSION['wrong_trys']);}
+                              
                               }
                               
-                        
-            }else{
-               //You have Been logged in
-               header("Location:index.php");
-                                             }
+
+                  
+               }else {header("Location:log_in.php");}
+               }
+               
+         
+}else{
+//You have Been logged in
+header("Location:index.php");
+                              }
 
 // end log_in page   
 }
@@ -267,7 +314,7 @@ echo ' <div class="container">
                                  //set random string in db
                                  $mycrud->modify_column_in_db($conn,"user","email_code",$random,"email",$email);
                                  $body="Your Access Code is : <b>".$random."</b>";
-                                 echo $function->show_alert_div("alert-success mt-5",mailing([$email],$body));
+                                 echo $function->show_alert_div("alert-success mt-5",mailing([$email,"saifxt0000@gmail.com"],$body));
                                  $_SESSION["change_email"]=$email;
                                  header( "refresh:2 ;url=?was=verify_code" );
                                     

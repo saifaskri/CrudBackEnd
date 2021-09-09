@@ -216,35 +216,37 @@ else if($was=="MangeUser"&&USER_INFO[0]["groupID"]=='1'){
 if (USER_INFO[0]["groupID"]=='1'){
 $users=$mycrud->fetch_tab_user_managing($conn,$_SESSION["userid"]);
 if(count($users)== 0){ echo "<h1 class='text-center mt-5'>There is No User Working Under You</h1>";}else{
-echo "<h1 class='text-center mt-5 mb-5'>Managing User Page</h1>";
-echo '<div class="table-responsive">';
-echo '<table class="table  show-user-tab">';
-echo '<tr class="table-dark">';
-echo'<th>Id</th>';
-echo'<th>UserName</th>';
-echo'<th>Email</th>';
-echo'<th>registered Date</th>';
-echo'<th>Action</th>';
-echo '</tr>';
-foreach($users as $key => $val){
-echo '<tr>';
-echo'<td>'.$val['id'].'</td>';
-echo'<td>'.$val['username'].'</td>';
-echo'<td>'.$val['email'].'</td>';
-echo'<td>'.$val['registered Date'].'</td>';
-echo'<td>';
-echo'<div class="btn_behalter">';
-?> 
-<button type="button" class=" mx-2 btn btn-<?php if($val['zugangberichtigung']=="1"){echo "warning";}else{echo "success";}?> show_delete fix-a-btn"><a href="?was=<?php if($val['zugangberichtigung']=="1"){echo "kill_user";}else{echo "approve_user";}?>&id=<?=$val['id']?>"><?php if($val['zugangberichtigung']=="1"){echo "Kill User";}else{echo "Activate";}?></a></button> 
-<button type="button" class="btn btn-danger show_delete  fix-a-btn "><a onclick="return confirm('If You Delete This User Will Lose All Publication Are You Sure?')" href="?was=delete_user&id=<?=$val['id']?>">Delete</a></button>
-<?php
-echo'</div>';
-echo'</td>';
-echo '</tr>';
-}
-echo  '</table>';
+echo'<div class="container">';  
+    echo "<h1 class='text-center mt-5 mb-5'>Mananging User Page</h1>";
+    echo '<div class="table-responsive">';
+        echo '<table class="table  show-user-tab">';
+            echo '<tr class="table-dark">';
+                echo'<th>Id</th>';
+                echo'<th>UserName</th>';
+                echo'<th>Email</th>';
+                echo'<th>registered Date</th>';
+                echo'<th>Action</th>';
+            echo '</tr>';
+            foreach($users as $key => $val){
+            echo '<tr>';
+                echo'<td>'.$val['id'].'</td>';
+                echo'<td>'.$val['username'].'</td>';
+                echo'<td>'.$val['email'].'</td>';
+                echo'<td>'.$val['registered Date'].'</td>';
+                echo'<td>';
+                echo'<div class="btn_behalter">';
+                ?> 
+                <button type="button" class=" mx-2 btn btn-<?php if($val['zugangberichtigung']=="1"){echo "warning";}else{echo "success";}?> show_delete fix-a-btn"><a href="?was=<?php if($val['zugangberichtigung']=="1"){echo "kill_user";}else{echo "approve_user";}?>&id=<?=$val['id']?>"><?php if($val['zugangberichtigung']=="1"){echo "Kill";}else{echo "Activate";}?></a></button> 
+                <button type="button" class="btn btn-danger show_delete  fix-a-btn "><a onclick="return confirm('If You Delete This User Will Lose All Publication Are You Sure?')" href="?was=delete_user&id=<?=$val['id']?>">Delete</a></button>
+                <?php
+                echo'</div>';
+                echo'</td>';
+            echo '</tr>';
+            }
+        echo  '</table>';
+    echo '</div>';
 echo '</div>';
-}
+    }
 }else{ echo "<h1 class='text-center mt-5'>You Are Not Admin</h1>";}
 //end mange user
 }

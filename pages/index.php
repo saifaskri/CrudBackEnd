@@ -4,6 +4,8 @@ ob_start();
 session_start();
 session_regenerate_id();
 if(isset($_SESSION["showcolor"])){$_SESSION["showcolor"]="NO";}
+
+//check session
 if (isset($_SESSION["username"])&& isset($_SESSION["userid"])){
 $set_navbar="";
 $language_is="";
@@ -11,6 +13,8 @@ $page_titel="Admin Page";
 include "init.php";
 $userinfo=$mycrud->fetch_tab($conn,"user",$_SESSION["userid"],"id");
 define("USER_INFO",$userinfo);
+
+
 if(isset($_GET["was"])){$was=$_GET["was"];}else{$was="default";}
 echo "<a href='?was=add'><div class='add-item_btn'><i class='fas fa-plus'></i></div></a>";
 
@@ -22,7 +26,7 @@ include $tmplate_path."header.php";
 if(isset($set_navbar)){include $tmplate_path."navbar.php";}
 
 if ($was=="default"){
-$function->show_alert_div("alert alert-info mt-5","Sorry Admin We Will Edit this Page Later".$_SESSION["showcolor"]);
+$function->show_alert_div("alert alert-info mt-5","Sorry Admin We Will Edit this Page Later");
 
 }
     
@@ -36,6 +40,7 @@ else if ($was == "modify_account"){
 
     
     else if($was=="add"){
+        $cats=$mycrud->fetch_tab($conn,"categories",USER_INFO[0]["id"],"added_by",$witch_column="cat_id , cat_name");
     ?>
     <div class="myaddbody">
         <div class="add-item-page">
@@ -52,6 +57,12 @@ else if ($was == "modify_account"){
                                 <textarea  style="height: 200px" rows="4" cols="50" value="bfdf"  class="form-control" id="desc" name="prod_desc"></textarea>
                                 <label  for="desc">Description</label>
                             </div>
+                            <select class="form-select mb-3" name="categorie" aria-label="Default select example">
+                                <option selected value="none">Select Categorie</option>
+                                <?php foreach($cats as $cat){ ?>
+                                <option value="<?= $cat["cat_id"] ?>"><?= $cat['cat_name'] ?></option>;
+                                <?php } ?>
+                            </select>
                             <div class="mb-3">
                                 <label for="price" value=""  class="form-label">Price</label>
                                 <input min="1" max="999999999" type="number" name="prod_price" class="form-control" id="price">
@@ -177,8 +188,14 @@ if ($id_exist){
 
 else if($was=="show"){
 $items=$mycrud->fetch_tab_admin($conn,$_SESSION['userid']);
-if(count($items)== 0){ echo "<h1 class='text-center mt-5'>There is No Item</h1>";}else{ echo "<h1 class='text-center mt-5'>Show All My Publiaction</h1>";}
-echo '<div class="container ">';
+if(count($items)== 0){ echo "<h1 class='text-center mt-5'>There is No Item</h1>";}else{ echo "<h1 class='text-center mt-5'>Show All My Publiaction</h1>";
+echo '<div class=" container view mt-5  mb-5">
+                <div class="view_titel">View : </div>
+                <div class="show_it_tab "><a  href="?was=ShowTab">Table</a></div> 
+                <div class="show_it_tab"><a class="active" href="?was=show">Custom</a></div> 
+             </div>';  
+} 
+echo '<div class="container position-relative ">';
     echo '<div class="row mt-5 mb-5">';
 foreach( $items as $index=>$item){     
 ?>
@@ -200,23 +217,138 @@ foreach( $items as $index=>$item){
         <div class="show-money"><?=$item["item_price"]." ".$item["item_currency"] ?> </div>
     </div> 
 </div>
-<!-- Start My Slider -->
-
-<!-- end My Slider -->
 <?php  
 //end foreach    
 }
+
     echo'</div>';
 echo'</div>';
 //end show    
 }
 
 
+
+
+
+
+
+else if($was=="Add_Categorie"){
+echo'<div class="container ">'; 
+  echo "<h1 class='text-center mt-5'>Add Categories</h1>";
+    echo'<form method="post" action="?was=insert_cat" class=" row mt-5 align-items-center flex-column">';
+        echo'
+            <div class=" col-12 col-md-8 col-lg-6 mb-3">
+                <input type="text" name="cat_name" class="form-control" id="exampleFormControlInput1" placeholder="Category Name">
+            </div>
+            <div class=" col-12 col-md-8 col-lg-6 mb-3">
+                 <textarea placeholder="Description" name="cat_desc" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+            </div>
+            <div class="col-12 col-md-8 col-lg-6 form-check mb-3 margin-0 form-switch">
+                <label class="form-check-label" for="mycheck">Visibility</label>
+                <input class="form-check-input" name="cat_stat" type="checkbox" value="1" id="mycheck">
+            </div>
+            <div class=" col-12 col-md-8 col-lg-6 mb-3 justify-content-end width-100 d-flex">
+                <button type="submit" class=" btn btn-success">Add</button>
+            </div>
+            ';
+    echo'</form>';
+    //end container
+echo'</div>'; 
+
+
+// end  add cat
+}
+
+else if($was=="insert_cat"){
+    if ($_SERVER['REQUEST_METHOD'] == 'POST'){
+        //varibales
+        $titel_cat=filter_var($_POST['cat_name'],FILTER_SANITIZE_STRING);
+        $titel_desc=filter_var($_POST['cat_desc'],FILTER_SANITIZE_STRING);
+        $status=(isset($_POST['cat_stat']) ) ? 1 : 0 ;
+            $test_errors = $function->check_required_input_fields([$_POST['cat_desc'], $_POST['cat_name']]);  
+        if(empty($test_errors) ){
+            //insert into database if no errors
+            $function->show_alert_div("alert alert-success mt-5",$mycrud->add_new_cat($conn,USER_INFO[0]["id"],$titel_cat,$titel_desc,$status));
+            header("Refresh:3; url=?was=Add_Categorie");
+        }else{
+            // print the errors
+            foreach($test_errors as $test_error){$function->show_alert_div("alert-danger",$test_error);}
+            header("Refresh:2; url=?was=Add_Categorie");
+        }
+    }else{header('Location:?was=Add_Categorie');}
+    
+    //end insert
+    }
+
+
+
+
+
+
+
+else if($was=="ShowTab"){
+    $items=$mycrud->fetch_tab_admin_item_categories($conn,USER_INFO[0]["id"]);
+    if(count($items)== 0){ echo "<h1 class='text-center mt-5'>There is No Item </h1>";}else{
+    echo'<div class="mx-3">'; 
+        echo "<h1 class='text-center mt-5 mb-5'>Mananging Item Page</h1>";       
+        echo '<div class="table-responsive position-relative">';
+        echo '<div class=" container view  mb-5">
+                <div class="view_titel">View : </div>
+                <div class="show_it_tab "><a  class="active" href="?was=ShowTab">Table</a></div> 
+                <div class="show_it_tab"><a href="?was=show">Custom</a></div> 
+              </div>';   
+            echo '<table class="table  show-user-tab">';
+                echo '<tr class="table-dark">';
+                    echo'<th>Id</th>';
+                    echo'<th>Item Titel</th>';
+                    echo'<th>Item Description</th>';
+                    echo'<th>Item Category</th>';
+                    echo'<th>Price</th>';
+                    echo'<th>Add At:</th>';
+                    echo'<th>Owner</th>';
+                    echo'<th class="text-center">Action</th>';
+                echo '</tr>';
+                foreach($items as $key => $val){
+                    $who= ($val['this_user_works_under']==Null) ? "You" :  $val['this_user_works_under'];
+                    $status=($val['item_status']=="0") ? "approve_tr_color" :"" ;
+                echo '<tr class='. $status.'>';
+                    echo'<td>'.$val['item_id'].'</td>';
+                    echo'<td>'.$val['item_titel'].'</td>';
+                    echo'<td>'.$val['item_desc'].'</td>';
+                    echo'<td>'.$val['cat_name'].'</td>';
+                    echo'<td>'.$val['item_price']." ".$val['item_currency'].'</td>';
+                    echo'<td>'.$val['item_upload_date'].'</td>';
+                    echo'<td>'.$who.'</td>';
+                    echo'<td>';
+                    echo'<div class="btn_behalter">';
+                    ?> 
+                        <button type="button" class="btn btn-<?php if($val['item_status']=="1"){echo 'primary';}else{echo "success ";}?> "> <a href="?was=<?php if($val['item_status']=='1'){echo 'Disapprove';}else{echo 'Approve';}?>&id=<?= $val['item_id'] ?> " > <?php if($val['item_status']=="1"){echo "Disapprove";}else{echo "Approve";}?></a></button> 
+                        <button type="button" class="btn mx-2 btn-warning"><a href='?was=modify&id=<?=$val["item_id"]?>'>Modify</a></button>
+                        <button  type="button"  class="btn btn-danger show_delete  fix-a-btn  me-3 show_delete"><a onclick="return confirm('Are you sure?')" href='?was=delete&id=<?=$val["item_id"]?>'>Delete</a></button>
+                    <?php 
+                    echo'</div>';
+                    echo'</td>';
+                echo '</tr>';
+                }
+            echo  '</table>';
+        echo '</div>';
+    echo '</div>';
+        }
+    //end mange user
+    }
+        
+    
+
+
+
+
+
+
 else if($was=="MangeUser"&&USER_INFO[0]["groupID"]=='1'){
 if (USER_INFO[0]["groupID"]=='1'){
 $users=$mycrud->fetch_tab_user_managing($conn,$_SESSION["userid"]);
 if(count($users)== 0){ echo "<h1 class='text-center mt-5'>There is No User Working Under You</h1>";}else{
-echo'<div class="container">';  
+echo'<div class="mx-3">';  
     echo "<h1 class='text-center mt-5 mb-5'>Mananging User Page</h1>";
     echo '<div class="table-responsive">';
         echo '<table class="table  show-user-tab">';
@@ -275,6 +407,7 @@ else if($was=="insert"){
     //check if size and extention is accepted
     $errors=$function->Controle_upload_file("image");
     $test_errors= $function->check_required_input_fields([$_POST['prod_name'],$_POST['prod_desc'],$_POST['prod_price']]);
+     if($_POST['categorie']== "none"){$test_errors [] = "Please Choose a Categorie !" ;}
     foreach($test_errors as $test_error){$errors[]=$test_error;}  
         if(empty($errors) ){
             //insert into database if no errors
@@ -283,14 +416,14 @@ else if($was=="insert"){
         }else{
             // print the errors
             foreach($errors as $error){$function->show_alert_div("alert-danger",$error);}
-            header("Refresh:10; url= index.php");
+            header("Refresh:5; url=?was=add");
         }
     }else{header('Location:?was=add');}
     
     //end insert
     }
     
-        
+    
     else if($was=="delete"&&isset($_GET['id'])){
     //must delete the file too 
     $get_id= $function->get_id_colmn($_GET['id']);

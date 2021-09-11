@@ -13,6 +13,24 @@ public function verif_log_in(){
 }
 
 
+public function add_new_cat($conn,$user_id,$titel,$desc,$staus){
+
+$q="INSERT INTO categories
+( added_by ,cat_name , cat_desc , cat_status)
+VALUES
+(:added_by,:cat_name,:cat_desc,:cat_status)";
+$stat=$conn->prepare($q);
+$stat->bindValue(':added_by',$user_id);
+$stat->bindValue(':cat_name',$titel);
+$stat->bindValue(':cat_desc',$desc);
+$stat->bindValue(':cat_status',$staus,PDO::PARAM_INT);
+
+    if( $stat->execute()){
+    echo '<div class="alert alert-success text-center mt-5 mb-5 p-5" role="alert">New Item Added Sussecfully</div>';}
+}
+
+
+
  public function add_new_item($conn,$user_id){
 // need to make constraint here
 $img_name=$_FILES["image"]["name"];
@@ -27,6 +45,7 @@ $img_size=$_FILES["image"]["size"];
 $titel=filter_var($_POST['prod_name'],FILTER_SANITIZE_STRING);
 $desc=filter_var($_POST['prod_desc'],FILTER_SANITIZE_STRING);
 $price=filter_var($_POST['prod_price'],FILTER_SANITIZE_NUMBER_INT);
+$cat=filter_var($_POST['categorie'],FILTER_SANITIZE_NUMBER_INT);
 $currency=filter_var($_COOKIE["currency"],FILTER_SANITIZE_STRING);
 
         $dir="../Users_Info/Id_User_Nr".$user_id."/images";
@@ -34,11 +53,12 @@ $currency=filter_var($_COOKIE["currency"],FILTER_SANITIZE_STRING);
         $file_tmp=$_FILES["image"]["tmp_name"];
         // move_uploaded_file($file_tmp,$new_photo_link);
         $q="INSERT INTO items
-             ( user_id , item_titel , item_desc, item_price,item_currency, item_photo, item_status)
+             ( user_id ,cat_id, item_titel , item_desc, item_price,item_currency, item_photo, item_status)
              VALUES
-             (:user_id, :item_titel, :item_desc,:item_price,:item_currency,:item_photo, :item_status)";
+             (:user_id,:cat_id, :item_titel, :item_desc,:item_price,:item_currency,:item_photo, :item_status)";
         $stat=$conn->prepare($q);
         $stat->bindValue(':user_id',$user_id);
+        $stat->bindValue(':cat_id',$cat);
         $stat->bindValue(':item_titel',$titel);
         $stat->bindValue(':item_desc',$desc);
         $stat->bindValue(':item_price',$price);
@@ -111,6 +131,19 @@ $currency=filter_var($_COOKIE["currency"],FILTER_SANITIZE_STRING);
 // here i can add any condition to $tab
     public function fetch_tab_admin($conn,$userid){
         $q="SELECT * FROM items WHERE  this_user_works_under= ".$userid." OR  user_id = " .$userid." ORDER BY user_id" ;
+        $stat=$conn->prepare($q);
+        $stat->execute();
+        $data = $stat->fetchAll(PDO::FETCH_ASSOC); 
+        return $data;  
+    }
+
+    public function fetch_tab_admin_item_categories($conn,$userid){
+        $q="SELECT * FROM items
+            INNER JOIN categories
+            ON items.cat_id = categories.cat_id 
+            AND  (items.this_user_works_under= ".$userid."
+            OR  items.user_id = " .$userid.")
+            ORDER BY items.user_id" ;
         $stat=$conn->prepare($q);
         $stat->execute();
         $data = $stat->fetchAll(PDO::FETCH_ASSOC); 

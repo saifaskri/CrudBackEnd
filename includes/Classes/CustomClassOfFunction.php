@@ -79,7 +79,7 @@ public function Controle_upload_file($file_field_name,$max_photo_uploading_size=
 }
 
 // return array of errros
-public function check_required_input_fields ($inputs,$msg="You Must Fill All Fields")  {
+public function check_required_input_fields ($inputs,$msg="You Must Fill In All Fields")  {
     $errors=array();
      foreach($inputs as $input){
         

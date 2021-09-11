@@ -105,12 +105,12 @@ else if ($was == "modify_account"){
 else if($was=="modify"){
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-$error=$function->check_required_input_fields([$_POST['titel'],$_POST['price'],$_POST['desc'],$_POST['currency']]);
+    $error=$function->check_required_input_fields([$_POST['titel'],$_POST['price'],$_POST['desc'],$_POST['currency']]);
     if(count($error)>0){
         $function->show_alert_div("alert-danger",$error[0]);
 //no error 
     }else{
-//update
+//update the Items 
     $function->show_alert_div("alert-success mt-5",$mycrud->modify_row_in_db($conn,$_POST['titel'],$_POST['desc'],$_POST['price'],$_POST['currency'],$_POST["user_id"]));
     header( "refresh:1;url= ?was=show");}
 }else if(!isset($_GET['id'])){header("Location:index.php");}
@@ -122,9 +122,8 @@ if($get_mod_id!=-103){
 
 $id_exist=$mycrud->check_if_in_db_admin($conn,"items","item_id",$get_mod_id,$_SESSION['userid']);
 if ($id_exist){
-            
-                $datas= $mycrud->fetch_tab2($conn,"items",$_SESSION['userid'],$get_mod_id);
-
+$cats=$mycrud->fetch_tab($conn,"categories",USER_INFO[0]["id"],"added_by",$witch_column="cat_id , cat_name");     
+$datas= $mycrud->fetch_tab2($conn,"items",$_SESSION['userid'],$get_mod_id);
 ?>
     <h1 class=" myh1 text-center mt-4">Item Modification Page</h1>  
     <div class="container mycont">                                  
@@ -137,6 +136,12 @@ if ($id_exist){
                 <label for="desc" class="form-label mylabel">Descritption</label>
                 <textarea  name="desc" class="form-control" id="desc" rows="3"><?= $datas[0]["item_desc"] ?></textarea>
             </div>
+            <select class="form-select mt-3" name="categorie" aria-label="Default select example">
+                <option  value="none">Select Categorie</option>
+                <?php foreach($cats as $index => $cat){ ?>
+                <option <?php if($cat["cat_id"]==$datas[0]["cat_id"]){echo "selected" ;}?> value="<?= $cat["cat_id"] ?>"><?= $cat['cat_name'] ?></option>;
+                <?php } ?>
+            </select>
             <div class="mt-3">
                 <label for="price" class="form-label mylabel">Item Price</label>
                 <input type="number" class="form-control" name="price"  value="<?=$datas[0]["item_price"] ?>"  id="price" >
